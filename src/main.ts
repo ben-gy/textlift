@@ -1,0 +1,24 @@
+/** App bootstrap: mounts UI, event drawer and glossary. No heavy logic here. */
+
+import './styles/main.css';
+import { emit, mountEventDrawer } from './eventlog';
+import { mountGlossary } from './glossary';
+import { mountApp, wireGlobalDragDrop } from './ui';
+
+const main = document.getElementById('main');
+const drawer = document.getElementById('event-drawer');
+const tip = document.getElementById('glossary-tip');
+
+if (main && drawer && tip) {
+  mountEventDrawer(drawer);
+  mountApp(main);
+  mountGlossary(tip);
+  wireGlobalDragDrop();
+
+  window.addEventListener('offline', () =>
+    emit('system', 'warn', 'You are offline — English OCR keeps working; other languages need their model cached first'),
+  );
+  window.addEventListener('online', () => emit('system', 'info', 'Back online'));
+} else {
+  document.body.textContent = 'Textlift failed to start: missing root elements.';
+}

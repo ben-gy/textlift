@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light" />
+    <meta name="theme-color" content="#faf9f7" />
+
+    <title>Textlift — extract text from images &amp; scanned PDFs, privately</title>
+    <meta
+      name="description"
+      content="Free OCR that runs entirely in your browser. Extract text from photos, screenshots and scanned PDFs — nothing is uploaded, ever. Get plain text or a searchable PDF."
+    />
+
+    <meta property="og:title" content="Textlift — extract text from images &amp; scanned PDFs, privately" />
+    <meta
+      property="og:description"
+      content="Free OCR that runs entirely in your browser. Extract text from photos, screenshots and scanned PDFs — nothing is uploaded, ever."
+    />
+    <meta property="og:type" content="website" />
+
+    <!-- CSP: same-origin app; jsDelivr only for optional extra OCR languages;
+         Cloudflare Web Analytics beacon is the sole analytics. -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' blob: https://cdn.jsdelivr.net https://cloudflareinsights.com; worker-src 'self' blob:; child-src 'self' blob:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'none';"
+    />
+
+    <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "ba2bab2193ba42c1bea3d6714fcd0e28"}'></script>
+  </head>
+  <body>
+    <div id="app">
+      <header class="topbar">
+        <a class="brand" href="/">
+          <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+            <rect x="5" y="3" width="22" height="26" rx="3" fill="none" stroke="currentColor" stroke-width="2"/>
+            <rect x="9" y="8" width="14" height="2.4" rx="1.2" fill="currentColor"/>
+            <rect x="9" y="13" width="10" height="2.4" rx="1.2" fill="currentColor" opacity="0.45"/>
+            <rect x="9" y="18" width="12" height="2.4" rx="1.2" fill="currentColor" opacity="0.45"/>
+            <path d="M20 27 L24 21 L28 27" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            <line x1="24" y1="21.5" x2="24" y2="30" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+          </svg>
+          <span class="brand-name">Textlift</span>
+        </a>
+        <button type="button" class="trust-badge" data-modal="tmpl-threat" title="Read the threat model">
+          <span class="trust-dot" aria-hidden="true"></span>
+          Runs entirely in your browser — files never leave your device
+        </button>
+        <nav class="topbar-nav">
+          <button type="button" class="nav-link" data-modal="tmpl-how">How it works</button>
+          <button type="button" class="nav-link" data-modal="tmpl-threat">Threat model</button>
+          <button type="button" class="nav-link" data-modal="tmpl-about">About</button>
+        </nav>
+      </header>
+
+      <main class="main-content" id="main">
+        <!-- populated by src/ui.ts -->
+      </main>
+
+      <footer class="site-footer">
+        <div class="footer-left">
+          <span class="status-pill">
+            <span class="dot-mini" id="sb-dot"></span>
+            <span id="sb-status">idle</span>
+          </span>
+          <span class="sb-item" id="sb-lang"></span>
+          <span class="sb-item" id="sb-pages"></span>
+          <span class="sb-item" id="sb-elapsed"></span>
+        </div>
+        <div class="footer-right">
+          <button type="button" class="nav-link" id="btn-eventlog" aria-controls="event-drawer" aria-expanded="false">Event log</button>
+          <span class="attribution">
+            Built by <a href="https://benrichardson.dev/" target="_blank" rel="noopener">benrichardson.dev</a>
+            · <a href="https://hub.benrichardson.dev" target="_blank" rel="noopener">more tools &amp; sites</a>
+          </span>
+        </div>
+      </footer>
+    </div>
+
+    <aside id="event-drawer" aria-label="Event log">
+      <!-- populated by src/eventlog.ts -->
+    </aside>
+
+    <div id="glossary-tip" role="tooltip" hidden></div>
+
+    <template id="tmpl-how">
+      <div class="modal-content">
+        <h2 class="modal-title">How it works</h2>
+        <ol class="steps">
+          <li>
+            <span class="step-num">01</span>
+            <div>
+              <h3>Drop, pick or paste</h3>
+              <p>
+                Add a photo, screenshot or scanned PDF. You can paste a screenshot
+                straight from your clipboard with <kbd>Cmd/Ctrl+V</kbd>. The file is
+                opened by your browser, in this tab — there is no upload step,
+                anywhere.
+              </p>
+            </div>
+          </li>
+          <li>
+            <span class="step-num">02</span>
+            <div>
+              <h3>Pages become bitmaps</h3>
+              <p>
+                PDF pages are drawn to an offscreen canvas by
+                <span class="glossary-link" data-term="pdfjs">pdf.js</span> — the same
+                engine Firefox uses to display PDFs. Images are decoded and, if huge,
+                scaled to an ideal size for recognition.
+              </p>
+            </div>
+          </li>
+          <li>
+            <span class="step-num">03</span>
+            <div>
+              <h3>Tesseract reads each page</h3>
+              <p>
+                Each bitmap is handed to
+                <span class="glossary-link" data-term="tesseract">Tesseract</span> — a
+                25-year-old open-source OCR engine compiled to
+                <span class="glossary-link" data-term="wasm">WebAssembly</span> — running
+                in a <span class="glossary-link" data-term="worker">Web Worker</span> so
+                the page never freezes. Its
+                <span class="glossary-link" data-term="lstm">LSTM</span> neural network
+                recognises the text line by line.
+              </p>
+            </div>
+          </li>
+          <li>
+            <span class="step-num">04</span>
+            <div>
+              <h3>Text, on your device only</h3>
+              <p>
+                The recognised text appears below, per page and combined. Copy it,
+                download it as <code>.txt</code>, or share it. It never leaves your
+                machine.
+              </p>
+            </div>
+          </li>
+          <li>
+            <span class="step-num">05</span>
+            <div>
+              <h3>Optional: a searchable PDF</h3>
+              <p>
+                Textlift can also rebuild your document as a
+                <span class="glossary-link" data-term="searchable-pdf">searchable PDF</span> —
+                the original pixels with an invisible text layer underneath, so you can
+                select, copy and Cmd/Ctrl+F it in any PDF viewer.
+              </p>
+            </div>
+          </li>
+        </ol>
+      </div>
+    </template>
+
+    <template id="tmpl-threat">
+      <div class="modal-content">
+        <h2 class="modal-title">Threat model</h2>
+        <div class="security-grid">
+          <div class="security-card good">
+            <h3>Protected</h3>
+            <ul>
+              <li>Your images and PDFs — opened and processed entirely in this tab. No upload endpoint exists in this app.</li>
+              <li>The extracted text and any searchable PDF — generated and downloaded locally.</li>
+              <li>English OCR works fully offline once the page has loaded — you can disconnect and it keeps working.</li>
+            </ul>
+          </div>
+          <div class="security-card bad">
+            <h3>Not protected</h3>
+            <ul>
+              <li>If you pick a language other than English, that language model is downloaded once from jsDelivr's CDN. jsDelivr sees your IP address and which language you fetched — never your files or text.</li>
+              <li>Whatever you do with the output after download is outside this tool's control.</li>
+            </ul>
+          </div>
+          <div class="security-card">
+            <h3>Trust surface</h3>
+            <ul>
+              <li>The static site bundle, served over GitHub Pages TLS.</li>
+              <li>Tesseract.js, pdf.js and pdf-lib — open-source libraries compiled into that bundle.</li>
+              <li>jsDelivr CDN, only if you fetch an extra language model.</li>
+              <li>A Cloudflare Web Analytics beacon records anonymous page views — no cookies, no fingerprinting, no cross-site tracking; your files/data are never sent to it.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </template>
+
+    <template id="tmpl-about">
+      <div class="modal-content">
+        <h2 class="modal-title">About Textlift</h2>
+        <div class="about-body">
+          <p>
+            Textlift pulls the text out of images, screenshots and scanned PDFs without
+            uploading them anywhere. Most "image to text" sites send your file to a
+            server — and OCR inputs are exactly the documents you least want on
+            someone else's server: IDs, invoices, contracts, prescriptions. Textlift
+            runs the OCR engine itself, compiled to WebAssembly, inside your browser.
+          </p>
+          <p>
+            It reads printed text in 12+ languages. Handwriting is not supported —
+            that's a limit of the Tesseract engine, and it's better to say so than to
+            pretend.
+          </p>
+          <p>
+            Built by <a href="https://benrichardson.dev/" target="_blank" rel="noopener">Ben Richardson</a>.
+            Explore the full catalog of privacy-first tools at
+            <a href="https://hub.benrichardson.dev" target="_blank" rel="noopener">hub.benrichardson.dev</a>.
+          </p>
+          <p>
+            Source code: <a href="https://github.com/ben-gy/textlift" target="_blank" rel="noopener">github.com/ben-gy/textlift</a> (MIT).
+          </p>
+        </div>
+      </div>
+    </template>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
