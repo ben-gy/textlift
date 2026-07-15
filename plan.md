@@ -76,8 +76,8 @@ Ordinary people with a document problem: the office manager retyping a scanned i
 - Event log drawer (Dropwell pattern)
 - How-It-Works modal (drop → rasterise → Tesseract WASM → text/PDF, 5 steps)
 - Threat Model modal (Protected / Not protected / Trust surface incl. beacon + jsDelivr disclosure)
-- About modal: benrichardson.dev, sites.benrichardson.dev, source repo link
+- About modal: benrichardson.dev, hub.benrichardson.dev, source repo link
 - Output: copy text, download .txt, download searchable .pdf, Web Share
 - Language picker (12 common languages; eng bundled, rest on-demand with size shown)
 - Keyboard: Escape closes modals, Cmd/Ctrl+V pastes, Enter runs OCR when file staged
-- Sticky footer: Built by benrichardson.dev · more tools & sites → sites.benrichardson.dev
+- Sticky footer: Built by benrichardson.dev · more tools & sites → hub.benrichardson.dev
