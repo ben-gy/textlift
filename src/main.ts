@@ -1,5 +1,10 @@
 /** App bootstrap: mounts UI, event drawer and glossary. No heavy logic here. */
 
+// feedback:begin (managed by hub/scripts/feedback/backfill.mjs)
+import { mountFeedback } from './feedback';
+mountFeedback();
+// feedback:end
+
 import './styles/main.css';
 import { emit, mountEventDrawer } from './eventlog';
 import { mountGlossary } from './glossary';
