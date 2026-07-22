@@ -4,6 +4,7 @@
   "version": "1.0.0",
   "type": "module",
   "description": "Extract text from images, screenshots and scanned PDFs entirely in your browser — no uploads, ever.",
+  "license": "AGPL-3.0-or-later",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
